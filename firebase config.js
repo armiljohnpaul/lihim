@@ -1,3 +1,7 @@
+// firebase-config.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
 const firebaseConfig = {
     apiKey: "AIzaSyBp1yaLCexKOglNcMh3-ppnGvV3pN_7ulY",
     authDomain: "lihim-clothing-2f635.firebaseapp.com",
