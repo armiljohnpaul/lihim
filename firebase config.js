@@ -11,14 +11,22 @@ const firebaseConfig = {
     appId: "1:791415987673:web:06af7ea1142ca47f738dc8"
 };
 
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+// Initialize Services
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+// Optional: Enable persistence (recommended)
+db.settings({ cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED });
+
+export { db, auth };
+
 const CLOUDINARY_CONFIG = {
     cloudName: "dtvyptdyf",
     uploadPreset: "lihim_products"
 };
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
 
 //  Admin email whitelist
 const ADMIN_EMAILS = [
