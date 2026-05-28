@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lihim Admin Dashboard</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>LIHIM ADMIN</h1>
+            </div>
+            <form id="login-form" onsubmit="loginAdmin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="login-email" required placeholder="admin@lihim.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <div id="login-error" class="error-message"></div>
+                <button type="submit" class="btn-primary login-btn">Login</button>
+            </form>
+            <div class="login-footer">
+                <p>Forgot password? Contact system administrator</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard (Hidden until logged in) -->
+    <div id="admin-dashboard" style="display: none;">
+
+    <div class="admin-header">
+        <div class="container-wide">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                        <h1>LIHIM ADMIN</h1>
+                    </div>
+                    <nav class="admin-nav">
+                        <a href="index.html" target="_blank">View Shop</a>
+                        <a href="#" onclick="showTab('products')">Products</a>
+                        <a href="#" onclick="showTab('orders')">Orders</a>
+                        <a href="#" onclick="showTab('analytics')">Analytics</a>
+                    </nav>
+                </div>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <span style="color: #fff; font-size: 14px;" id="admin-email"></span>
+                    <button onclick="logoutAdmin()" class="btn-logout">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-wide admin-container">
+        
+        <!-- Products Tab -->
+        <div id="products-tab" class="admin-tab active">
+            <div class="tab-header">
+                <h2>Product Management <span id="products-count" style="font-size: 16px; color: #666; font-weight: normal;"></span></h2>
+                <div>
+                    <button class="btn-primary" onclick="loadProducts()" style="background: #666; margin-right: 10px;">Refresh</button>
+                    <button class="btn-primary" onclick="openAddProduct()">+ Add New Product</button>
+                </div>
+            </div>
+
+            <div class="products-table">
+                <div style="background: #f9f9f9; padding: 15px; margin-bottom: 15px; border-radius: 4px; display: flex; gap: 30px; align-items: center;">
+                    <div>
+                        <strong>Total Products:</strong> <span id="stat-total">0</span>
+                    </div>
+                    <div style="color: #28a745;">
+                        <strong>Active:</strong> <span id="stat-active">0</span>
+                    </div>
+                    <div style="color: #dc3545;">
+                        <strong>Inactive:</strong> <span id="stat-inactive">0</span>
+                    </div>
+                    <div style="margin-left: auto;">
+                        <select id="filter-status" onchange="filterProductsByStatus()" style="padding: 8px; border: 2px solid #ddd; border-radius: 4px;">
+                            <option value="all">Show All Products</option>
+                            <option value="active">Active Only</option>
+                            <option value="inactive">Inactive Only</option>
+                        </select>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Sales</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-tbody">
+                        <!-- Products will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Orders Tab -->
+        <div id="orders-tab" class="admin-tab">
+            <div class="tab-header">
+                <h2>Order Management</h2>
+                <div class="order-filters">
+                    <button class="btn-primary" onclick="loadOrders()" style="background: #666; margin-right: 10px;">Refresh</button>
+                    <select onchange="filterOrders(this.value)">
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="orders-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-tbody">
+                        <!-- Orders will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics-tab" class="admin-tab">
+            <div class="tab-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Sales Analytics</h2>
+                <button class="btn-primary" onclick="loadAnalytics()" style="background: #666;">Refresh</button>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Revenue</h3>
+                    <div class="stat-value" id="total-revenue">₱0</div>
+                    <div class="stat-label">All time</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Orders</h3>
+                    <div class="stat-value" id="total-orders">0</div>
+                    <div class="stat-label">All time</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Products</h3>
+                    <div class="stat-value" id="total-products">0</div>
+                    <div class="stat-label">In inventory</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Avg Order Value</h3>
+                    <div class="stat-value" id="avg-order">₱0</div>
+                    <div class="stat-label">Per transaction</div>
+                </div>
+                <div class="stat-card" style="border-left-color:#28a745;">
+                    <h3>Est. Total Profit</h3>
+                    <div class="stat-value" id="total-profit" style="color:#28a745;">₱0</div>
+                    <div class="stat-label">Revenue minus cost</div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <h3>Top Selling Products</h3>
+                <div id="top-products" class="top-products-list">
+                    <!-- Top products will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeProductModal()">&times;</span>
+            <h2 id="product-modal-title">Add New Product</h2>
+            <form id="product-form" onsubmit="saveProduct(event)">
+                <input type="hidden" id="product-id">
+                
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="product-name" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="product-category" required>
+                            <option value="Hoodies">Hoodies</option>
+                            <option value="T-Shirts">T-Shirts</option>
+                            <option value="Bottoms">Bottoms</option>
+                            <option value="Accessories">Accessories</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Price (₱)</label>
+                        <input type="number" id="product-price" required min="0" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cost Price (₱)</label>
+                        <input type="number" id="product-cost" min="0" value="0" placeholder="0">
+                        <small style="color:#888; font-size:11px;">Your cost to produce/buy this item</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Discount (%)</label>
+                        <input type="number" id="product-discount" min="0" max="100" value="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Stock</label>
+                        <input type="number" id="product-stock" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Profit per Item</label>
+                        <div id="profit-preview" style="padding:12px; background:#f9f9f9; border:2px solid #ddd; font-family:'Bebas Neue',sans-serif; font-size:20px; color:#28a745;">₱0</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Product Image (Optional)</label>
+                    <input type="file" id="product-image-file" accept="image/*" onchange="previewImage(this)">
+                    <input type="hidden" id="product-image">
+                    <input type="hidden" id="product-image-path">
+                    <p style="font-size: 12px; color: #888; margin-top: 5px;">Leave empty to add product without image</p>
+                    <div id="image-preview" style="margin-top: 10px; display: none;">
+                        <img id="preview-img" style="max-width: 200px; max-height: 200px; border: 2px solid #eee;">
+                        <p style="font-size: 12px; color: #888; margin-top: 5px;">Image preview</p>
+                    </div>
+                    <div id="upload-progress" style="margin-top: 10px; display: none;">
+                        <div style="background: #eee; height: 20px; border-radius: 10px; overflow: hidden;">
+                            <div id="progress-bar" style="background: #000; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                        </div>
+                        <p style="font-size: 12px; color: #888; margin-top: 5px;">Uploading image...</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="product-description" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="product-active" checked>
+                        Active (visible in shop)
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-primary">Save Product</button>
+            </form>
+        </div>
+    </div>
+    <!-- End Admin Dashboard -->
+
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeOrderModal()">&times;</span>
+            <h2>Order Details</h2>
+            <div id="order-details">
+                <!-- Order details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <h2 id="confirm-title">Confirm Action</h2>
+            <p id="confirm-message" style="margin: 20px 0; font-size: 16px; line-height: 1.6;"></p>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 30px;">
+                <button onclick="closeConfirmModal()" class="btn-primary" style="background: #666;">Cancel</button>
+                <button id="confirm-action-btn" class="btn-primary" style="background: #e20b1d;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profit Preview Script -->
+    <script>
+        function updateProfitPreview() {
+            const price = parseFloat(document.getElementById('product-price')?.value) || 0;
+            const cost = parseFloat(document.getElementById('product-cost')?.value) || 0;
+            const discount = parseFloat(document.getElementById('product-discount')?.value) || 0;
+            const sellingPrice = price * (1 - discount / 100);
+            const profit = sellingPrice - cost;
+            const el = document.getElementById('profit-preview');
+            if (!el) return;
+            el.innerText = `₱${Math.round(profit).toLocaleString()}`;
+            el.style.color = profit >= 0 ? '#28a745' : '#e20b1d';
+        }
+        document.addEventListener('input', (e) => {
+            if (['product-price','product-cost','product-discount'].includes(e.target.id)) {
+                updateProfitPreview();
+            }
+        });
+    </script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <!-- Your Scripts -->
+    <script src="firebase config"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
